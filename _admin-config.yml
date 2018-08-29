@@ -1,0 +1,3 @@
+options:
+  askImageFilename: true
+  imagePath: /_posts/testImage
