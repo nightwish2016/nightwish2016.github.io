@@ -1,9 +1,7 @@
-title: RabbitMQ_No Exchange  (一)
+title: RabbitMQ_No Exchange (1)
 author: Kevin Zhou
+date: 2018-08-29 22:18:45
 tags:
-  - RabbitMQ
-categories: []
-date: 2018-08-28 16:58:00
 ---
 ### No Exchange test
 1.Install RabbitMQ :https://www.rabbitmq.com/download.html 
@@ -73,15 +71,15 @@ date: 2018-08-28 16:58:00
   dotnet run 
   ```
   
-![upload successful](/images/pasted-1.png)
+
+{% asset_img pasted-1.png This is an image %}
 5.Run Send:
   ```
   dotnet run "aaa"
   ```
   
-![](/images/pasted-0.png)
 
+{% asset_img pasted-0.png This is an image %}
 6.Open RabitMQ admin :http://localhost:15672/ usrname :guest password:guest
 7.Click queue tab,you will find a new queue was created named "NoExchangeQueue"
-
-![upload successful](/images/NoExchangeQueue.png)
+{% asset_img NoExchangeQueue.png This is an image %}
