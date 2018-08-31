@@ -1,7 +1,9 @@
 title: RabbitMQ_ExchangeType Direct(2)
 author: Kevin Zhou
-date: 2018-08-29 22:22:57
 tags:
+  - RabbitMQ
+categories: []
+date: 2018-08-29 22:22:00
 ---
 ## DirectExchangeTest
 Exchange: Exchange is a rout map
