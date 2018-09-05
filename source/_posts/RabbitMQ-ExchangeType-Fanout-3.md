@@ -2,7 +2,9 @@ title: RabbitMQ_ExchangeType Fanout(3)
 author: Kevin Zhou
 tags:
   - RabbitMQ
-categories: []
+  - 'C#'
+categories:
+  - RabbitMQ
 date: 2018-08-30 14:26:00
 ---
 Exchange: Exchange is a rout map

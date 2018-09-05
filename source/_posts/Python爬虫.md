@@ -2,7 +2,9 @@ title: Python爬虫
 author: Kevin Zhou
 tags:
   - Python
-categories: []
+  - 爬虫
+categories:
+  - 爬虫
 date: 2018-08-20 22:12:00
 ---
 ### 如何使用requests登录豆瓣并且爬取内容

@@ -2,7 +2,9 @@ title: RabbitMQ_ExchangeType Direct(2)
 author: Kevin Zhou
 tags:
   - RabbitMQ
-categories: []
+  - 'C#'
+categories:
+  - RabbitMQ
 date: 2018-08-29 22:22:00
 ---
 ## DirectExchangeTest

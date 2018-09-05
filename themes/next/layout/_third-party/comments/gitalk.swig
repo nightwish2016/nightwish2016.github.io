@@ -3,8 +3,8 @@
   <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
    <script type="text/javascript">
         var gitalk = new Gitalk({
-          clientID: '{{ theme.gitalk.ClientID }}',
-          clientSecret: '{{ theme.gitalk.ClientSecret }}',
+          clientID: '{{ theme.gitalk.clientID }}',
+          clientSecret: '{{ theme.gitalk.clientSecret }}',
           repo: '{{ theme.gitalk.repo }}',
           owner: '{{ theme.gitalk.githubID }}',
           admin: ['{{ theme.gitalk.admin }}'],

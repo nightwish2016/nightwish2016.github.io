@@ -2,7 +2,9 @@ title: RabbitMQ_No Exchange (1)
 author: Kevin Zhou
 tags:
   - RabbitMQ
-categories: []
+  - 'C#'
+categories:
+  - RabbitMQ
 date: 2018-08-29 22:18:00
 ---
 ### No Exchange test
