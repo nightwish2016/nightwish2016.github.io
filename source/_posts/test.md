@@ -9,4 +9,4 @@ categories:
 ```
 mkdir mygit
 git init
-123
+123456**
