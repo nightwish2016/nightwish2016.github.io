@@ -79,5 +79,5 @@ theme: next
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repo: https://github.com/nightwish2016/nightwish2016.github.io.git
+  repo: git@github.com:nightwish2016/nightwish2016.github.io.git
   branch: master
