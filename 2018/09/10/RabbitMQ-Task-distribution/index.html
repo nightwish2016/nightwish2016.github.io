@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="C#,Java,Python">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="RabbitMQ,C#," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="Firt of all ,Let’s take a look the following receive code,You will find that If the message is 1,The consumer will sleep 1 seconds, if the message is 10 ,The consumer will sleep 10 seconds.12345678910">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RabbitMQ_Task distribution(7)">
+<meta property="og:url" content="https://nightwish2016.github.io/2018/09/10/RabbitMQ-Task-distribution/index.html">
+<meta property="og:site_name" content="NightWish">
+<meta property="og:description" content="Firt of all ,Let’s take a look the following receive code,You will find that If the message is 1,The consumer will sleep 1 seconds, if the message is 10 ,The consumer will sleep 10 seconds.12345678910">
+<meta property="og:locale">
+<meta property="og:image" content="https://nightwish2016.github.io/2018/09/10/RabbitMQ-Task-distribution/consumer1.png">
+<meta property="og:image" content="https://nightwish2016.github.io/2018/09/10/RabbitMQ-Task-distribution/Consumer2.png">
+<meta property="og:image" content="https://nightwish2016.github.io/2018/09/10/RabbitMQ-Task-distribution/Consumer1-1.png">
+<meta property="og:image" content="https://nightwish2016.github.io/2018/09/10/RabbitMQ-Task-distribution/Consumer2-1.png">
+<meta property="article:published_time" content="2018-09-10T11:14:00.000Z">
+<meta property="article:modified_time" content="2023-07-29T05:59:03.456Z">
+<meta property="article:author" content="Kevin Zhou">
+<meta property="article:tag" content="RabbitMQ">
+<meta property="article:tag" content="C#">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nightwish2016.github.io/2018/09/10/RabbitMQ-Task-distribution/consumer1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://nightwish2016.github.io/2018/09/10/RabbitMQ-Task-distribution/"/>
+
+
+
+
+
+  <title>RabbitMQ_Task distribution(7) | NightWish</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="C#,Java,Python">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">NightWish</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://nightwish2016.github.io/2018/09/10/RabbitMQ-Task-distribution/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="NightWish">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">RabbitMQ_Task distribution(7)</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-09-10T11:14:00+00:00">
+                2018-09-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/RabbitMQ/" itemprop="url" rel="index">
+                    <span itemprop="name">RabbitMQ</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018/09/10/RabbitMQ-Task-distribution/" class="leancloud_visitors" data-flag-title="RabbitMQ_Task distribution(7)">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Firt of all ,Let’s take a look the following receive code,You will find that If the message is 1,The consumer will sleep 1 seconds, if the message is 10 ,The consumer will sleep 10 seconds.<br><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">TasksDistributeLimit(args, <span class="string">&quot;DirectTestQueue&quot;</span>);</span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">TasksDistributeLimit</span>(<span class="params"><span class="built_in">string</span>[] args, <span class="built_in">string</span> queueName</span>)</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">var</span> factory = <span class="keyword">new</span> ConnectionFactory() &#123; HostName = <span class="string">&quot;localhost&quot;</span> &#125;;</span><br><span class="line">            <span class="keyword">using</span> (<span class="keyword">var</span> connection = factory.CreateConnection())</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">using</span> (<span class="keyword">var</span> channel = connection.CreateModel())</span><br><span class="line">                &#123;</span><br><span class="line">                    channel.QueueDeclare(queue: queueName, durable: <span class="literal">false</span>, exclusive: <span class="literal">false</span>, autoDelete: <span class="literal">false</span>, arguments: <span class="literal">null</span>);</span><br><span class="line">                  <span class="comment">//  channel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);</span></span><br><span class="line">                    <span class="keyword">var</span> consumer = <span class="keyword">new</span> EventingBasicConsumer(channel);</span><br><span class="line">                    consumer.Received += (model, ea) =&gt;</span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="keyword">var</span> message = Encoding.UTF8.GetString(ea.Body);</span><br><span class="line">                        Console.WriteLine(<span class="string">&quot;queue:&quot;</span> + queueName);</span><br><span class="line">                        Console.WriteLine(<span class="string">&quot;[x] Received &#123;0&#125;&quot;</span>, message);</span><br><span class="line">                        <span class="built_in">int</span> len = <span class="built_in">int</span>.Parse(message);                        </span><br><span class="line">                        Console.WriteLine(<span class="string">&quot;Sleep:&#123;0&#125; seconds&quot;</span>, len);</span><br><span class="line">                        Thread.Sleep(len*<span class="number">1000</span>);</span><br><span class="line">                        Console.WriteLine(<span class="string">&quot; [x] Done&quot;</span>);</span><br><span class="line">                        channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: <span class="literal">false</span>); <span class="comment">//Manually confirm message</span></span><br><span class="line"></span><br><span class="line">                    &#125;;</span><br><span class="line">                    channel.BasicConsume(queue: queueName, autoAck: <span class="literal">false</span>, consumer: consumer);</span><br><span class="line">                    Console.WriteLine(<span class="string">&quot; Press [enter] to exit.&quot;</span>);</span><br><span class="line">                    Console.ReadLine();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure><br><span id="more"></span><br>Let’s mock the following scenario:<br>1.Launch two consumers:<br>  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dotnet run</span><br></pre></td></tr></table></figure><br>2.Send a message to make consumer sleep 1 second<br>3.Send a message to make consumer sleep 2 seconds<br>4.Send a message to make consumer sleep 3 seconds<br>5.Send a message to make consumer sleep 4 seconds<br>6.Send a message to make consumer sleep 60 seconds<br>7.Send a message to make consumer sleep 1 seconds<br>8.Send a message to make consumer sleep 2 seconds</p>
+<p>Result:<br>Consumer1:<br><img src="/2018/09/10/RabbitMQ-Task-distribution/consumer1.png" class="" title="consumer1"></p>
+<p>Consumer2:<br><img src="/2018/09/10/RabbitMQ-Task-distribution/Consumer2.png" class="" title="Consumer2"></p>
+<p>Conclusion:<br>You will find all messages will be ditributed equally until the consumer2 sleep 60s complete.Actually this distribution rule is not good for server since the other consumers are free, They could be able to consume these messages</p>
+<p>How to improve the efficiency of comsumer processor:<br>Add this code in your consomer project,The consumer only fetch 1 message from queue until<br>this requst is finished. The other messages which are not fetched will be processed by the other consumers.<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">channel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);</span><br></pre></td></tr></table></figure><br>See the detail code of receive:<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">static void TasksDistributeLimit(string[] args, string queueName)</span><br><span class="line">       &#123;</span><br><span class="line">           var factory = new ConnectionFactory() &#123; HostName = &quot;localhost&quot; &#125;;</span><br><span class="line">           using (var connection = factory.CreateConnection())</span><br><span class="line">           &#123;</span><br><span class="line">               using (var channel = connection.CreateModel())</span><br><span class="line">               &#123;</span><br><span class="line">                   channel.QueueDeclare(queue: queueName, durable: false, exclusive: false, autoDelete: false, arguments: null);</span><br><span class="line">                   channel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);</span><br><span class="line">                   var consumer = new EventingBasicConsumer(channel);</span><br><span class="line">                   consumer.Received += (model, ea) =&gt;</span><br><span class="line">                   &#123;</span><br><span class="line">                       var message = Encoding.UTF8.GetString(ea.Body);</span><br><span class="line">                       Console.WriteLine(&quot;queue:&quot; + queueName);</span><br><span class="line">                       Console.WriteLine(&quot;[x] Received &#123;0&#125;&quot;, message);</span><br><span class="line">                       int len = int.Parse(message);                        </span><br><span class="line">                       Console.WriteLine(&quot;Sleep:&#123;0&#125; seconds&quot;, len);</span><br><span class="line">                       Thread.Sleep(len*1000);</span><br><span class="line">                       Console.WriteLine(&quot; [x] Done&quot;);</span><br><span class="line">                       channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false); //Manually confirm message</span><br><span class="line"></span><br><span class="line">                   &#125;;</span><br><span class="line">                   channel.BasicConsume(queue: queueName, autoAck: false, consumer: consumer);</span><br><span class="line">                   Console.WriteLine(&quot; Press [enter] to exit.&quot;);</span><br><span class="line">                   Console.ReadLine();</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br></pre></td></tr></table></figure></p>
+<p>Retest this scenario we just tested:<br>Result:<br>    Consumer1:   </p>
+<img src="/2018/09/10/RabbitMQ-Task-distribution/Consumer1-1.png" class="" title="Consumer1-1">
+<pre><code>Consumer2:
+</code></pre> <img src="/2018/09/10/RabbitMQ-Task-distribution/Consumer2-1.png" class="" title="Consumer2-1">
+<p>Conclusion:</p>
+<p>The message will be distributed to which consumers depends on whether consumers are busy or not.</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/RabbitMQ/" rel="tag"># RabbitMQ</a>
+          
+            <a href="/tags/C/" rel="tag"># C#</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/09/07/RabbitMQ-Consumer-Acknowledgements-and-Publisher-Confirms-6/" rel="next" title="RabbitMQ_Consumer Acknowledgements and Publisher Confirms(6)">
+                <i class="fa fa-chevron-left"></i> RabbitMQ_Consumer Acknowledgements and Publisher Confirms(6)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/07/27/GitCommand/" rel="prev" title="Git Command">
+                Git Command <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+    
+    
+ <div id="gitalk-container"></div>
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">28</span>
+                <span class="site-state-item-name">posts</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/nightwish2016" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="mailto:kzhou2017@outlook.com" target="_blank" title="E-Mail">
+                  
+                    <i class="fa fa-fw fa-envelope"></i>
+                  
+                    
+                      E-Mail
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Kevin Zhou</span>
+</div>
+
+
+<div class="powered-by">
+  Powered by <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+  <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+   <script type="text/javascript">
+        var gitalk = new Gitalk({
+          clientID: '5f415d322f1a0bb4bcb3',
+          clientSecret: '7fcffaf798e91a01cd19262906a81ab508ad85f6',
+          repo: 'nightwish2016.github.io',
+          owner: 'nightwish2016',
+          admin: ['nightwish2016'],
+          id: decodeURI(location.pathname),
+          distractionFreeMode: 'false'
+        })
+        gitalk.render('gitalk-container')           
+       </script>
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("uOMwSyzc0S8v7bfyul5DBhLW-gzGzoHsz", "ctXhqi9Kd4Kzp0NzuVc5B7tB");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

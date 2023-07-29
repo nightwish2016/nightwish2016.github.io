@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="C#,Java,Python">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Notion,Azure," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="背景在上一篇的文章中，我介绍了如何通过Notion创建Daily task来提升工作效率，但是也发现了2个问题。  Notion不支持创建循环任务，比如每天都需要创建的Daily Wrike，Daily review等task  如果任务已经完成需要手动设置CompletedDate,否则已经Done的任务也会显示在第二天的看板里   需求 循环任务需求     Requirement     创">
+<meta property="og:type" content="article">
+<meta property="og:title" content="创建重复性的Notion任务以及自动更新任务状态">
+<meta property="og:url" content="https://nightwish2016.github.io/2022/09/25/RecurringTaskCreation/index.html">
+<meta property="og:site_name" content="NightWish">
+<meta property="og:description" content="背景在上一篇的文章中，我介绍了如何通过Notion创建Daily task来提升工作效率，但是也发现了2个问题。  Notion不支持创建循环任务，比如每天都需要创建的Daily Wrike，Daily review等task  如果任务已经完成需要手动设置CompletedDate,否则已经Done的任务也会显示在第二天的看板里   需求 循环任务需求     Requirement     创">
+<meta property="og:locale">
+<meta property="og:image" content="http://kevinbucket2020.oss-cn-hangzhou.aliyuncs.com/HexoBlog/RecurringTaskCreation/RecurringTaskCreation.png">
+<meta property="og:image" content="http://kevinbucket2020.oss-cn-hangzhou.aliyuncs.com/HexoBlog/RecurringTaskCreation/TaskStatusUpdate.png">
+<meta property="og:image" content="http://kevinbucket2020.oss-cn-hangzhou.aliyuncs.com/HexoBlog/Notion/Create%20Daily%20task%20By%20template/RecurringTask.png">
+<meta property="og:image" content="http://kevinbucket2020.oss-cn-hangzhou.aliyuncs.com/HexoBlog/Notion/Create%20Daily%20task%20By%20template/Configuration.png">
+<meta property="og:image" content="http://kevinbucket2020.oss-cn-hangzhou.aliyuncs.com/HexoBlog/Notion/Create%20Daily%20task%20By%20template/InnitalDailyTask.png">
+<meta property="og:image" content="http://kevinbucket2020.oss-cn-hangzhou.aliyuncs.com/HexoBlog/RecurringTaskCreation/result.png">
+<meta property="og:image" content="http://kevinbucket2020.oss-cn-hangzhou.aliyuncs.com/HexoBlog/RecurringTaskCreation/azureFunctionLog.png">
+<meta property="article:published_time" content="2022-09-25T16:44:13.000Z">
+<meta property="article:modified_time" content="2023-07-29T05:59:03.464Z">
+<meta property="article:author" content="Kevin Zhou">
+<meta property="article:tag" content="Notion">
+<meta property="article:tag" content="Azure">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://kevinbucket2020.oss-cn-hangzhou.aliyuncs.com/HexoBlog/RecurringTaskCreation/RecurringTaskCreation.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://nightwish2016.github.io/2022/09/25/RecurringTaskCreation/"/>
+
+
+
+
+
+  <title>创建重复性的Notion任务以及自动更新任务状态 | NightWish</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="C#,Java,Python">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">NightWish</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://nightwish2016.github.io/2022/09/25/RecurringTaskCreation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="NightWish">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">创建重复性的Notion任务以及自动更新任务状态</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-09-25T16:44:13+00:00">
+                2022-09-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Notion/" itemprop="url" rel="index">
+                    <span itemprop="name">Notion</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2022/09/25/RecurringTaskCreation/" class="leancloud_visitors" data-flag-title="创建重复性的Notion任务以及自动更新任务状态">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>在上一篇的文章中，我介绍了如何通过Notion创建Daily task来提升工作效率，但是也发现了2个问题。</p>
+<ol>
+<li><p>Notion不支持创建循环任务，比如每天都需要创建的Daily Wrike，Daily review等task</p>
+</li>
+<li><p>如果任务已经完成需要手动设置CompletedDate,否则已经Done的任务也会显示在第二天的看板里</p>
+</li>
+</ol>
+<h1 id="需求"><a href="#需求" class="headerlink" title="需求"></a>需求</h1><ol>
+<li>循环任务需求</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>创建一个循环任务模板page，并且建立好对应的循环任务</td>
+</tr>
+<tr>
+<td>查询循环任务模板，根据任务的循环类型，创建不同的Daily task，例如 task daily wrike是每日都要做的，娃跳舞是每个周日的task</td>
+</tr>
+</tbody>
+</table>
+<ol start="2">
+<li>自动更新任务状态</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>如果一个task是TBD或者空状态，并且task过期时间小于等于今天，那么标记task为Doing状态</td>
+<td>已经过期或者今天即将要期的task，但是目前还没做，需要当天立即去做，所以放到doing组里今天需要马上去做</td>
+</tr>
+<tr>
+<td>如果一个task是TBD或者空状态,并且Task 将在X天内过期（设置了提前X天过期提醒，X不为空或者0），那么提前X天标记task为Todo状态</td>
+<td>X天内即将到期的task，需要尽快完成，所以放到Todo 组下面，防止忘记</td>
+</tr>
+<tr>
+<td>如果一个task是TBD或者空状态,并且Task 将在X天内过期（未设置提前X天过期提醒，X为空或者0），那么直到task过期的那天设置tas为Doing状态</td>
+<td>已经到期的task需要马上去做，所以设置task为Doing状态</td>
+</tr>
+<tr>
+<td>如果一个task是TBD或者空状态，并且当天的时间在过期时间段之内，那么标记task为Doing状态</td>
+<td>Task已经到了开始做的时间，需要马上开始做，所以放到doing组里去马上做</td>
+</tr>
+<tr>
+<td>如果task过期时间是空,那么更新过期时间是今天，并且标记task状态为ToDo</td>
+<td>创建任务的时候忘记标记过期时间,默认当天需要完成该task</td>
+</tr>
+<tr>
+<td>如果task为Done状态，那么自动填充CompletedDate</td>
+<td>只有completedDate&lt;当前时间，并且状态为Done， 第二天的daily task才不会显示在看板里</td>
+</tr>
+</tbody>
+</table>
+<span id="more"></span>
+<h1 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h1><h2 id="流程图"><a href="#流程图" class="headerlink" title="流程图"></a>流程图</h2><ol>
+<li><h4 id="创建重复性任务"><a href="#创建重复性任务" class="headerlink" title="创建重复性任务"></a>创建重复性任务</h4><p><img src="http://kevinbucket2020.oss-cn-hangzhou.aliyuncs.com/HexoBlog/RecurringTaskCreation/RecurringTaskCreation.png" alt=""></p>
+</li>
+<li><h4 id="每日自动更新任务状态"><a href="#每日自动更新任务状态" class="headerlink" title="每日自动更新任务状态"></a>每日自动更新任务状态</h4><p><img src="http://kevinbucket2020.oss-cn-hangzhou.aliyuncs.com/HexoBlog/RecurringTaskCreation/TaskStatusUpdate.png" alt=""></p>
+</li>
+</ol>
+<h2 id="设计"><a href="#设计" class="headerlink" title="设计"></a>设计</h2><ol>
+<li><p>创建一个database页面作为模板记录需要重复做的任务， </p>
+<p>1.1列名及对应的值如下表</p>
+</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Value</th>
+<th>Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Title</td>
+<td>task名称</td>
+<td>task名称</td>
+</tr>
+<tr>
+<td>Status</td>
+<td>TBD,Todo,Doing,Done,Blocker,Invalid,Withdrawn,Unfinishted,OnHold</td>
+<td>Task状态</td>
+</tr>
+<tr>
+<td>Type</td>
+<td>WorkDay,SpecificDay,SpecificDateRange</td>
+<td>循环任务的类型</td>
+</tr>
+<tr>
+<td>Tag</td>
+<td>Work,Life,Python,Docker等等</td>
+<td>任务类型标签，自定义字段，请根据自身需要修改</td>
+</tr>
+<tr>
+<td>Cycle Date</td>
+<td>9/18/2022-9/25/2022</td>
+<td>某一段日期</td>
+</tr>
+<tr>
+<td>Cycle Days</td>
+<td>Monday到Sunday，选择其中一天或者多天</td>
+<td>一周之内某几天</td>
+</tr>
+<tr>
+<td>EndDate</td>
+<td>例如12/31/2022</td>
+<td>循环任务失效日期</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>2Daily task 有不同状态，TBD,Todo,Doing,Done,Blocker,Withdrawn,Unfinishted,OnHold</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Task Status</th>
+<th>Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TBD(To be determined)</td>
+<td>将来需要做的task，但是目前还没必要马上做的task，类似Jira的backlog</td>
+</tr>
+<tr>
+<td>Todo</td>
+<td>今天需要做的事项</td>
+</tr>
+<tr>
+<td>Doing</td>
+<td>今天正在做的事项</td>
+</tr>
+<tr>
+<td>Done</td>
+<td>今天已经完成的事项</td>
+</tr>
+<tr>
+<td>Blocker</td>
+<td>依赖于其他事项完成之后，才能继续进行的task，目前改事项无法进行</td>
+</tr>
+<tr>
+<td>Invalid</td>
+<td>无效的事项，目前只在循环任务page中使用</td>
+</tr>
+<tr>
+<td>Withdrawn</td>
+<td>不再需要的task</td>
+</tr>
+<tr>
+<td>Unfinished</td>
+<td>当天应该完成，但是实际未完成，该task当天有效</td>
+</tr>
+<tr>
+<td>OnHold</td>
+<td>当天做了一部分的task,现在需要先做其他优先级更高的task，该task先搁置一会，当天晚点继续做或者后面几天继续做</td>
+</tr>
+</tbody>
+</table>
+<ol start="2">
+<li><p>创建python package，开发Python代码去调用Notion的API读取dabase模板里的循环任务记录，将对应的循环任务创建到Daily task page（针对循环任务需求）</p>
+</li>
+<li><p>创建python package，开发Python代码去调用Notion的API去daily task page里的任务状态（针对其他任务需求）</p>
+</li>
+<li><p>创建azure function 定时任务，每天凌晨调用前面步骤提到的python package(当然此处也可以用jenkins定时任务或者本机的定时任务去做)</p>
+</li>
+</ol>
+<h2 id="开发部署步骤"><a href="#开发部署步骤" class="headerlink" title="开发部署步骤"></a>开发部署步骤</h2><ol>
+<li><p>创建Notion 循环任务模板page，请参考<a target="_blank" rel="noopener" href="https://stone-fighter-9fa.notion.site/530ba8c6780d4f668235e9b62f697d92?v=c802b9ed6928482c88da55051b41bb32">https://stone-fighter-9fa.notion.site/530ba8c6780d4f668235e9b62f697d92?v=c802b9ed6928482c88da55051b41bb32</a><br><img src="http://kevinbucket2020.oss-cn-hangzhou.aliyuncs.com/HexoBlog/Notion/Create%20Daily%20task%20By%20template/RecurringTask.png" alt="RecurringTask"></p>
+</li>
+<li><p>开发python代码调用Notion API查询循环任务记录，寻找到符合要求的循环任务，在daily task page里面创建循环任务,代码详见<a href="#sourcecode">github</a></p>
+</li>
+<li><p>创建Azure function 定时任务，每天凌晨调用step 2中的python 程序，自动创建Notion任务<br><strong>Function.json</strong></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;scriptFile&quot;</span><span class="punctuation">:</span> <span class="string">&quot;__init__.py&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;bindings&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;mytimer&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;timerTrigger&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;direction&quot;</span><span class="punctuation">:</span> <span class="string">&quot;in&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;schedule&quot;</span><span class="punctuation">:</span> <span class="string">&quot;0 10 16 * * *&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p><strong><strong>init</strong>.py</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> datetime</span><br><span class="line"> <span class="keyword">import</span> logging</span><br><span class="line"> <span class="keyword">import</span> os</span><br><span class="line">   <span class="keyword">import</span> azure.functions <span class="keyword">as</span> func</span><br><span class="line">   <span class="keyword">from</span> NotionRecurringTask.RecurringTask <span class="keyword">import</span> RecurringTask   </span><br><span class="line">   <span class="keyword">def</span> <span class="title function_">main</span>(<span class="params">mytimer: func.TimerRequest</span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">    utc_timestamp = datetime.datetime.utcnow().replace(</span><br><span class="line">    tzinfo=datetime.timezone.utc).isoformat()        </span><br><span class="line"> <span class="keyword">if</span> mytimer.past_due:</span><br><span class="line">   logging.info(<span class="string">&#x27;The timer is past due!&#x27;</span>)</span><br><span class="line"> auth=os.environ[<span class="string">&quot;Auth&quot;</span>]</span><br><span class="line"> taskConfiguration_dabaseid=os.environ[<span class="string">&quot;TaskConfiguration_dabaseid&quot;</span>]</span><br><span class="line"> timeDeltaWithUTC=(<span class="built_in">int</span>)(os.environ[<span class="string">&quot;TimeDeltaWithUTC&quot;</span>])</span><br><span class="line"> databaseid=os.environ[<span class="string">&quot;DatabaseID&quot;</span>]</span><br><span class="line"> knotion=RecurringTask()</span><br><span class="line"> knotion.process(auth,taskConfiguration_dabaseid,databaseid,timeDeltaWithUTC)</span><br><span class="line"> logging.info(<span class="string">&#x27;Python timer trigger function ran at %s&#x27;</span>, utc_timestamp)</span><br><span class="line">   </span><br></pre></td></tr></table></figure>
+<p><strong>requirement.txt</strong></p>
+<figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">--index-url</span>=https://test.pypi.org/simple/</span><br><span class="line">azure-functions</span><br><span class="line">requests</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">NotionRecurringTask-KevinZhou&gt;0.0.7</span><br><span class="line"></span><br><span class="line"><span class="comment"># git+https://github.com/nightwish2016/NotionRecurringTask.git </span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ./DailyNotionTaskTrigger/dist/NotionRecurringTask_KevinZhou-0.0.1-py3-none-any.whl</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在Aure Function中配置如下环境变量</p>
+</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Environment Variable</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Auth</td>
+<td>用来访问你授权notion page，请参考<a target="_blank" rel="noopener" href="https://developers.notion.com/docs/getting-started">Getting started (notion.com)</a></td>
+</tr>
+<tr>
+<td>DatabaseID</td>
+<td>Daily task 页面 的DatabaseId</td>
+</tr>
+<tr>
+<td>TimeDeltaWithUTC</td>
+<td>当前是时间与UTC时间的时间差，如果北京时间时区设置成8</td>
+</tr>
+<tr>
+<td>TaskConfiguration_dabaseid</td>
+<td>循环任务模板页面的 DatabaseId</td>
+</tr>
+</tbody>
+</table>
+<p><img src="http://kevinbucket2020.oss-cn-hangzhou.aliyuncs.com/HexoBlog/Notion/Create%20Daily%20task%20By%20template/Configuration.png" alt="Configuration"></p>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><h3 id="一般任务测试"><a href="#一般任务测试" class="headerlink" title="一般任务测试"></a>一般任务测试</h3><p><strong>当前时间：2022/9/24(utc+8)</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Test Case</th>
+<th style="text-align:left">Test Data</th>
+<th>Test Result</th>
+<th style="text-align:left">Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">如果一个task是TBD或者空状态，并且task过期时间小于等于今天，那么标记task状态为Doing</td>
+<td style="text-align:left">Name:M117 Regression,ExpirationDate:9/19/2022</td>
+<td>Pass,Status:Doing</td>
+<td style="text-align:left">已经过期或者今天将要期的task，但是还没轮到做，需要当天立即去做，所以放到doing组里今天需要马上去做</td>
+</tr>
+<tr>
+<td style="text-align:left">如果一个task是TBD或者空状态,并且Task 将在3天内过期，那么标记task为Todo状态</td>
+<td style="text-align:left">Name:Legacy regression,ExpirationDate:9/25/2022</td>
+<td>Pass,Status:ToDo</td>
+<td style="text-align:left">3天内即将到期的task，需要尽快完成，所以放到Todo 组下面</td>
+</tr>
+<tr>
+<td style="text-align:left">如果一个task是TBD或者空状态，并且当天的时间在过期时间段之内，那么标记task为doing状态</td>
+<td style="text-align:left">Name:Production testing Preparation，ExpirationDate:9/19/2022-9/31/2022</td>
+<td>Pass,Status:Doing</td>
+<td style="text-align:left">Task已经到了开始做的时间，需要马上开始做，所以放到doing组里去马上做</td>
+</tr>
+<tr>
+<td style="text-align:left">如果task过期时间是空,标记task status为Todo，那么更新过期时间是今天，并且标记task状态为ToDo</td>
+<td style="text-align:left">Name: Task1,ExpirationDate:empty</td>
+<td>Pass,Status:ToDo</td>
+<td style="text-align:left">创建任务的时候忘记标记过期时间,默认当天需要完成该task</td>
+</tr>
+<tr>
+<td style="text-align:left">如果task为Done状态，那么自动填充CompletedDate</td>
+<td style="text-align:left">Name: Task2,Status:Done</td>
+<td>Pass，Status:Done,CompletedDate:Today</td>
+<td style="text-align:left">只有completedDate&lt;当前时间，并且状态为Done， 第二条的daily task才不会显示</td>
+</tr>
+</tbody>
+</table>
+<h3 id="循环任务测试"><a href="#循环任务测试" class="headerlink" title="循环任务测试"></a>循环任务测试</h3><table>
+<thead>
+<tr>
+<th style="text-align:left">Test Case</th>
+<th style="text-align:left">Test Data</th>
+<th>Test Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">如果task type是Workday,那么task只会在周一到周5创建</td>
+<td style="text-align:left">Name:M117 Regression,ExpirationDate:9/19/2022</td>
+<td>Pass,Task会在周一到周5创建</td>
+</tr>
+<tr>
+<td style="text-align:left">如果task type是Daily，那么task每天都会创建</td>
+<td style="text-align:left">Name:运动</td>
+<td>Pass,Task 每天都会创建</td>
+</tr>
+<tr>
+<td style="text-align:left">如果task type是SpecificDay，那么task 只会在指定的某一天（比如周一，周二）会创建</td>
+<td style="text-align:left">Name：核酸，Cycle Days:Wednesday,SunDay</td>
+<td>Pass,Task只会在周一周日创建</td>
+</tr>
+<tr>
+<td style="text-align:left">如果task type是SpecificDateRange，那么task只会在在指定的日期范围内每天创建。</td>
+<td style="text-align:left">Name:check for  CBS automation test results,Cycle Date:9/1/2022-9/30/2022</td>
+<td>Pass,Task会在9/1/2022-9/30/2022期间每天创建</td>
+</tr>
+<tr>
+<td style="text-align:left">如果task已经过期了，那么task就不会创建</td>
+<td style="text-align:left">Name:Docker practice,EndDate:8/31/2022</td>
+<td>Pass,Task 不会创建因为模板里的task已经过期了</td>
+</tr>
+</tbody>
+</table>
+<p><strong>执行 Azure function前的task状态（前一天的task状态）,详细请见<a target="_blank" rel="noopener" href="https://stone-fighter-9fa.notion.site/DailyTask-Demo-59a57f31d29b4dfcab5db9d20aeca6ab：">https://stone-fighter-9fa.notion.site/DailyTask-Demo-59a57f31d29b4dfcab5db9d20aeca6ab：</a></strong><br><img src="http://kevinbucket2020.oss-cn-hangzhou.aliyuncs.com/HexoBlog/Notion/Create%20Daily%20task%20By%20template/InnitalDailyTask.png" alt="InnitalDailyTask"></p>
+<p><strong>执行Azure function定时任务后的task 状态</strong></p>
+<p><img src="http://kevinbucket2020.oss-cn-hangzhou.aliyuncs.com/HexoBlog/RecurringTaskCreation/result.png" alt="result"></p>
+<p><strong>Auzure function中的日志</strong></p>
+<p><img src="http://kevinbucket2020.oss-cn-hangzhou.aliyuncs.com/HexoBlog/RecurringTaskCreation/azureFunctionLog.png" alt="azure function log"></p>
+<p>此处的日志时间是UTC时区的时间</p>
+<h1 id="源码以及安装包"><a href="#源码以及安装包" class="headerlink" title="源码以及安装包"></a>源码以及安装包</h1><h3 id="Python-Package"><a href="#Python-Package" class="headerlink" title="Python Package"></a>Python Package</h3><p><a target="_blank" rel="noopener" href="https://test.pypi.org/project/NotionRecurringTask-KevinZhou/">https://test.pypi.org/project/NotionRecurringTask-KevinZhou/</a></p>
+<p>Install package : pip install -i <a target="_blank" rel="noopener" href="https://test.pypi.org/project/NotionRecurringTask-KevinZhou/">https://test.pypi.org/project/NotionRecurringTask-KevinZhou/</a></p>
+<h3 id="Github-source-Code"><a href="#Github-source-Code" class="headerlink" title="Github source Code"></a>Github source Code</h3><p><span id="sourcecode"><a target="_blank" rel="noopener" href="https://github.com/nightwish2016/NotionRecurringTask">https://github.com/nightwish2016/NotionRecurringTask</a></span></p>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a target="_blank" rel="noopener" href="https://developers.notion.com/docs/getting-started">https://developers.notion.com/docs/getting-started</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Notion/" rel="tag"># Notion</a>
+          
+            <a href="/tags/Azure/" rel="tag"># Azure</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/09/24/NotionTaskCreation/" rel="next" title="如何使用Notion创建管理Daily tasks">
+                <i class="fa fa-chevron-left"></i> 如何使用Notion创建管理Daily tasks
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/10/01/DailyTaskCreationByJenkins/" rel="prev" title="Automatically create Daily Notion Tasks by Jenkins">
+                Automatically create Daily Notion Tasks by Jenkins <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+    
+    
+ <div id="gitalk-container"></div>
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">28</span>
+                <span class="site-state-item-name">posts</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/nightwish2016" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="mailto:kzhou2017@outlook.com" target="_blank" title="E-Mail">
+                  
+                    <i class="fa fa-fw fa-envelope"></i>
+                  
+                    
+                      E-Mail
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9C%80%E6%B1%82"><span class="nav-number">2.</span> <span class="nav-text">需求</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">3.</span> <span class="nav-text">解决方案</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%81%E7%A8%8B%E5%9B%BE"><span class="nav-number">3.1.</span> <span class="nav-text">流程图</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E9%87%8D%E5%A4%8D%E6%80%A7%E4%BB%BB%E5%8A%A1"><span class="nav-number">3.1.0.1.</span> <span class="nav-text">创建重复性任务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AF%8F%E6%97%A5%E8%87%AA%E5%8A%A8%E6%9B%B4%E6%96%B0%E4%BB%BB%E5%8A%A1%E7%8A%B6%E6%80%81"><span class="nav-number">3.1.0.2.</span> <span class="nav-text">每日自动更新任务状态</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.2.</span> <span class="nav-text">设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%80%E5%8F%91%E9%83%A8%E7%BD%B2%E6%AD%A5%E9%AA%A4"><span class="nav-number">3.3.</span> <span class="nav-text">开发部署步骤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95"><span class="nav-number">3.4.</span> <span class="nav-text">测试</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E8%88%AC%E4%BB%BB%E5%8A%A1%E6%B5%8B%E8%AF%95"><span class="nav-number">3.4.1.</span> <span class="nav-text">一般任务测试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BE%AA%E7%8E%AF%E4%BB%BB%E5%8A%A1%E6%B5%8B%E8%AF%95"><span class="nav-number">3.4.2.</span> <span class="nav-text">循环任务测试</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%BA%90%E7%A0%81%E4%BB%A5%E5%8F%8A%E5%AE%89%E8%A3%85%E5%8C%85"><span class="nav-number">4.</span> <span class="nav-text">源码以及安装包</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Python-Package"><span class="nav-number">4.0.1.</span> <span class="nav-text">Python Package</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Github-source-Code"><span class="nav-number">4.0.2.</span> <span class="nav-text">Github source Code</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3"><span class="nav-number">5.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Kevin Zhou</span>
+</div>
+
+
+<div class="powered-by">
+  Powered by <a class="theme-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+  <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+   <script type="text/javascript">
+        var gitalk = new Gitalk({
+          clientID: '5f415d322f1a0bb4bcb3',
+          clientSecret: '7fcffaf798e91a01cd19262906a81ab508ad85f6',
+          repo: 'nightwish2016.github.io',
+          owner: 'nightwish2016',
+          admin: ['nightwish2016'],
+          id: decodeURI(location.pathname),
+          distractionFreeMode: 'false'
+        })
+        gitalk.render('gitalk-container')           
+       </script>
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("uOMwSyzc0S8v7bfyul5DBhLW-gzGzoHsz", "ctXhqi9Kd4Kzp0NzuVc5B7tB");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
